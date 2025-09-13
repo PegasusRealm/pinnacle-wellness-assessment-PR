@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pinnacle Wellness Assessment</title>
+  <style>
+    body {
+      background-color: #89C9D4; /* light background */
+      color: #2A6972; /* dark text */
+      font-family: 'Alice', serif;
+      margin: 0;
+      padding: 0;
+    }
+  
+    h1, h2, h3 {
+      font-family: 'Open Sans', sans-serif; /* modern secondary font for titles */
+      color: #2A6972;
+      text-align: center;
+      margin-top: 1em;
+    }
+  
+    #intro, #survey-form {
+      max-width: 800px;
+      margin: 2em auto;
+      padding: 2em;
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0px 4px 12px rgba(42, 105, 114, 0.2);
+    }
+  
+    #intro p, #survey-form p {
+      font-size: 1.2em;
+      line-height: 1.6;
+    }
+  
+    #question-container > div {
+      margin-bottom: 2em;
+      padding-bottom: 1em;
+      border-bottom: 1px solid #2A697220; /* soft divider */
+    }
+  
+    label {
+      display: inline-block;
+      margin-right: 15px;
+      margin-top: 8px;
+    }
+  
+    button[type="submit"] {
+      background-color: #2A6972;
+      color: white;
+      font-family: 'Open Sans', sans-serif;
+      font-size: 1.2em;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin: 1.5em auto;
+      display: block;
+      transition: background-color 0.3s;
+    }
+  
+    button[type="submit"]:hover {
+      background-color: #24545a;
+    }
+  
+    footer {
+      margin-top: 4em;
+      text-align: center;
+      font-size: 0.9em;
+      color: #2A6972;
+      font-family: 'Open Sans', sans-serif;
+      padding: 1em;
+    }
+     
+    button:hover {
+      background-color: #245b61;
+       transition: background-color 0.3s ease;
+    }
+
+    /* --- Domain Score Styles --- */
+    .domain-score-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.6em 1em;
+      border-bottom: 1px solid #2A697220;
+      font-family: 'Open Sans', sans-serif;
+      font-size: 1em;
+      margin-top: 1.5em;
+      margin-bottom: 1.5em;
+    }
+    /* Tooltip styles */
+    .tooltip {
+      position: relative;
+      display: inline-block;
+      cursor: help;
+    }
+    .tooltip .tooltiptext {
+      visibility: hidden;
+      width: 220px;
+      background-color: #2A6972;
+      color: #fff;
+      text-align: left;
+      border-radius: 6px;
+      padding: 0.75em;
+      position: absolute;
+      z-index: 1;
+      bottom: 125%;
+      left: 50%;
+      transform: translateX(-50%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      font-size: 0.85em;
+      font-family: 'Open Sans', sans-serif;
+    }
+    .tooltip:hover .tooltiptext {
+      visibility: visible;
+      opacity: 1;
+    }
+    /* CTA and Reflection Card Buttons/Links Hover */
+    a:hover {
+      background-color: #24545a;
+      transform: translateY(-2px);
+      transition: all 0.2s ease;
+    }
+
+    .domain-name {
+      color: #2A6972;
+      font-weight: 600;
+    }
+
+    .score-badge {
+      padding: 0.2em 0.6em;
+      border-radius: 5px;
+      font-weight: 500;
+    }
+
+    .badge-red {
+      background-color: #D9534F20;
+      color: #D9534F;
+    }
+
+    .badge-yellow {
+      background-color: #F0AD4E20;
+      color: #F0AD4E;
+    }
+
+    .badge-green {
+      background-color: #5CB85C20;
+      color: #5CB85C;
+    }
+    .badge-blue {
+      background-color: #337AB720;
+      color: #337AB7;
+    }
+  </style>
+
+  <!-- Firebase App (core) -->
+<script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+<!-- Firebase Firestore -->
+<script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+<script src="https://www.google.com/recaptcha/api.js?render=6LcTgyorAAAAAFb-3dSlQbClojxWV8gV9fbcUZt6"></script>
+</head>
+<body>
+  <h1>Pinnacle Wellness Assessment</h1>
+  <p style="font-family: 'Open Sans', sans-serif; font-size: 0.95em; text-align: center; margin-top: -0.5em; color: #2A6972;">
+    From the <em>Aloha Wellness Guide™</em>, written by Adam Grimm with contibutions from Taylor Takatani.
+  </p>
+  <div id="intro" style="font-family: 'Alice', serif; font-size: 1.2em; line-height: 1.6;">
+    <h2 style="font-size: 1.4em; color: #2A6972;">What Is This?</h2>
+    <p><strong>Welcome to the Pinnacle Wellness Assessment, your journey toward holistic wellness from the <em>The Aloha Wellness Guide™</em>.</strong></p>
+    <hr style="border: none; border-top: 1px solid #2A697250; margin: 2em 0;">
+
+    <h2 style="font-size: 1.4em; color: #2A6972;">What’s It Based On?</h2>
+    <p>It blends traditional Hawaiian wisdom with modern wellness practices rooted in the principles of Kūkulu Kumuhana and SAMHSA’s wellness model—frameworks that emphasize interconnected wellness. This guide offers actionable strategies to build resilience, deepen connections, and foster overall wellness. A key feature of this process is self-assessing one's current wellness.</p>
+    <hr style="border: none; border-top: 1px solid #2A697250; margin: 2em 0;">
+
+    <h2 style="font-size: 1.4em; color: #2A6972;">Why Take It?</h2>
+    <p><strong>The Pinnacle Wellness Assessment</strong> is designed to help you evaluate your wellness across multiple dimensions of life. As wellness constantly shifts, this is a snapshot of your present levels. By answering honestly, you’ll gain valuable insights into both your strengths and areas for growth.</p>
+
+    <ul style="list-style: none; padding-left: 0; margin: 1.5em 0;">
+      <li style="margin-bottom: 1em;"><strong>📌 Quick:</strong> Just 10–15 minutes to complete</li>
+      <li style="margin-bottom: 1em;"><strong>🔒 Private:</strong> Your responses are confidential</li>
+      <li style="margin-bottom: 1em;"><strong>🌀 Reflective:</strong> Discover your strengths and growth opportunities</li>
+    </ul>
+    <hr style="border: none; border-top: 1px solid #2A697250; margin: 2em 0;">
+
+    <h2 style="font-size: 1.4em; color: #2A6972;">How It Works</h2>
+    <p>The survey uses a simple <strong>7 choice "Strongly Agree" to "Strongly Disagree"</strong> scale. It should take approximately <strong>10–15 minutes</strong> to complete.</p>
+
+    <p>Your responses will remain confidential and contribute to the ongoing development of wellness interventions and improvements to the <em>Aloha Wellness Guide™</em>. Additionally, your data may be used in future scientific research. There is little to no risk in participating, and you can discontinue at any time, for any reason.</p>
+    <hr style="border: none; border-top: 1px solid #2A697250; margin: 2em 0;">
+
+    <p>Upon completing the survey, you’ll receive your overall <strong>Pinnacle Wellness Score</strong> and a breakdown of your results across the 14 dimensions of wellness. We encourage you to revisit the assessment periodically to track your progress and identify your next steps.</p>
+
+    <p><em>This is not a test—it’s a reflection tool designed to deepen your self-awareness.</em></p>
+<hr style="border: none; border-top: 1px solid #2A697250; margin: 2em 0;">
+    <p><strong>Let’s begin your journey toward reaching your highest potential in wellness. Focus on what feels true right now—not what you wish the answers were.</strong></p>
+    
+  </div>
+  <form id="survey-form">
+    <div id="question-container"></div>
+    <div style="margin-top: 2em; padding: 1em; background-color: #f4f4f4; border-radius: 8px;">
+      <p style="font-family: 'Open Sans', sans-serif; font-size: 1em; color: #2A6972;">
+        <strong>If you'd like your results emailed to you, please enter your address below:</strong>
+      </p>
+      <label for="userEmail" style="font-family: 'Open Sans', sans-serif; font-size: 0.95em; color: #2A6972;">Your Email (optional):</label><br>
+      <input type="email" id="userEmail" name="userEmail" style="width: 100%; padding: 10px; font-size: 1em; margin-top: 0.5em; border: 1px solid #ccc; border-radius: 5px;"><br><br>
+   <label style="font-size: 0.9em; color: #2A6972;">
+  <input type="checkbox" id="subscribeNewsletter" name="subscribeNewsletter" style="margin-right: 0.5em;">
+  Yes, I’d like to receive wellness updates and tools from Pegasus Realm.
+</label>
+<p style="font-size: 0.8em; color: #2A6972; margin-top: 0.5em;">
+  We respect your privacy. <a href="https://pegasusrealm.com/privacy-policy/" target="_blank" style="color: #2A6972; text-decoration: underline;">Privacy Policy</a>
+</p>
+    </div>
+    <button type="submit">Submit Assessment</button>
+  </form>
+  <script> 
+  // Detect Testing Mode
+const urlParams = new URLSearchParams(window.location.search);
+const testingMode = urlParams.get('testing') === 'true';
+console.log('Testing Mode:', testingMode); // You can remove this line later if you don't want console output
+
+// Your web app's Firebase configuration
+const firebaseConfig = {
+    apiKey: "AIzaSyA3_c5ZI9fPnN6Jjlw6tneKjs5Hjq-epMw",
+    authDomain: "pinnacle-wellness-assessment.firebaseapp.com",
+    projectId: "pinnacle-wellness-assessment",
+    storageBucket: "pinnacle-wellness-assessment.appspot.com",
+    messagingSenderId: "803077606060",
+    appId: "1:803077606060:web:b9f7bb28e2bc3800dbed09",
+    measurementId: "G-D5RFQZ07BL"
+  };
+
+ // Initialize Firebase (Compat Style)
+firebase.initializeApp(firebaseConfig);
+
+// Initialize Firestore
+const db = firebase.firestore();
+       const questions = [
+  { text: "I feel helpless to take action to reduce waste or promote sustainability in my environment.", domain: "ʻĀina Momona", invert: true },
+  { text: "I feel financially secure and have a clear plan to manage my money.", domain: "Financial Wellness", invert: false },
+  { text: "I regularly participate in social activities that bring me joy and connection.", domain: "Social Wellness", invert: false },
+  { text: "I actively take steps to create a peaceful and sustainable environment.", domain: "Environmental Wellness", invert: false },
+  { text: "I seek guidance from ancestral knowledge, faith, or personal reflection.", domain: "Ke Akua Mana", invert: false },
+  { text: "I actively engage in cultural or community traditions that strengthen my relationships.", domain: "Pilina", invert: false },
+  { text: "I frequently feel financially unstable and uncertain about the future.", domain: "Waiwai", invert: true },
+  { text: "I engage in practices that strengthen my sense of identity and personal growth.", domain: "ʻŌiwi", invert: false },
+  { text: "I feel secure in my ability to provide for myself and my family.", domain: "Waiwai", invert: false },
+  { text: "I feel lost or uncertain about my beliefs and personal values.", domain: "Spiritual Wellness", invert: true },
+  { text: "I often feel isolated, disconnected, or lack meaningful social relationships.", domain: "Social Wellness", invert: true },
+  { text: "I make financial decisions that balance my needs and community well-being.", domain: "Waiwai", invert: false },
+  { text: "I often feel powerless or unable to influence my life path.", domain: "Ea", invert: true },
+  { text: "I experience frequent physical discomfort or fatigue.", domain: "Physical Wellness", invert: true },
+  { text: "I frequently feel unmotivated or disconnected from my work or responsibilities.", domain: "Occupational Wellness", invert: true },
+  { text: "I make responsible financial decisions that align with my values and goals.", domain: "Financial Wellness", invert: false },
+  { text: "I feel stagnant in my learning and rarely engage in activities that expand my mind.", domain: "Intellectual Wellness", invert: true },
+  { text: "I feel emotionally balanced and resilient in most situations.", domain: "Emotional Wellness", invert: false },
+  { text: "I feel spiritually fulfilled and find strength through my beliefs or practices.", domain: "Spiritual Wellness", invert: false },
+  { text: "I experience frequent financial stress that negatively impacts my well-being.", domain: "Financial Wellness", invert: true },
+  { text: "I actively mālama ʻāina (care for the land) through sustainable practices.", domain: "ʻĀina Momona", invert: false },
+  { text: "I regularly seek opportunities to learn and challenge my thinking.", domain: "Intellectual Wellness", invert: false },
+  { text: "I feel empowered to make decisions that align with my values and goals.", domain: "Ea", invert: false },
+  { text: "I make conscious choices to eat nutritious foods and stay hydrated.", domain: "Physical Wellness", invert: false },
+  { text: "I feel disconnected from my cultural, spiritual, or ancestral identity.", domain: "Ke Akua Mana", invert: true },
+  { text: "I frequently feel overwhelmed and struggle to control my emotions.", domain: "Emotional Wellness", invert: true },
+  { text: "I regularly engage in physical activity to maintain my strength and health.", domain: "Physical Wellness", invert: false },
+  { text: "I rarely feel mentally stimulated or engaged in my activities.", domain: "ʻŌiwi", invert: true },
+  { text: "I struggle to maintain strong, healthy connections with others.", domain: "Pilina", invert: true },
+  { text: "I actively nurture connections with others built on trust and respect.", domain: "Social Wellness", invert: false },
+  { text: "I engage in creative or mentally stimulating activities that help me grow.", domain: "Intellectual Wellness", invert: false },
+  { text: "I feel deeply connected to nature and prioritize its preservation.", domain: "ʻĀina Momona", invert: false },
+  { text: "I take intentional steps to shape my future and contribute to my community.", domain: "Ea", invert: false },
+  { text: "I have meaningful relationships that provide emotional and social support.", domain: "Pilina", invert: false },
+  { text: "I often feel that my surroundings are cluttered, chaotic, or negatively impact my mood.", domain: "Environmental Wellness", invert: true },
+  { text: "I honor my cultural heritage and actively learn about my ancestral traditions.", domain: "ʻŌiwi", invert: false },
+  { text: "My work or daily responsibilities provide me with a sense of fulfillment and purpose.", domain: "Occupational Wellness", invert: false },
+  { text: "I feel supported and valued in my professional or personal commitments.", domain: "Occupational Wellness", invert: false },
+  { text: "I have a strong support system of family, friends, or community members.", domain: "Ke Akua Mana", invert: false },
+  { text: "I practice self-compassion and maintain a positive outlook even during challenges.", domain: "Emotional Wellness", invert: false },
+  { text: "My living and working spaces feel clean, organized, and support my well-being.", domain: "Environmental Wellness", invert: false },
+  { text: "I feel a deep sense of purpose and meaning in my life.", domain: "Spiritual Wellness", invert: false }
+  ];    
+    // Insert Attention Check Question
+const attentionCheck = {
+  text: "Please select 'Neither Agree nor Disagree' for this statement.",
+  domain: "Attention Check",
+  invert: false,
+  attentionCheck: true
+};
+questions.push(attentionCheck);
+    // Shuffle function
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    const shuffledQuestions = shuffle(questions);
+
+    const questionContainer = document.getElementById('question-container');
+
+    shuffledQuestions.forEach((q, index) => {
+  const questionDiv = document.createElement('div');
+  questionDiv.innerHTML = `
+    <p style="margin-top: 1.5em;"><strong>${index + 1}. ${q.text}</strong></p>
+    <div style="font-size: 0.9em;">
+     <div style="display: flex; flex-wrap: wrap; gap: 0.5em; justify-content: center;">
+  ${[
+    { score: 7, label: "Strongly Agree" },
+    { score: 6, label: "Agree" },
+    { score: 5, label: "Slightly Agree" },
+    { score: 4, label: "Neither Agree nor Disagree" },
+    { score: 3, label: "Slightly Disagree" },
+    { score: 2, label: "Disagree" },
+    { score: 1, label: "Strongly Disagree" }
+  ].map(option => `
+    <label style="flex: 1 1 100%; min-width: 220px; font-family: 'Open Sans', sans-serif; font-size: 0.95em;">
+      <input type="radio" name="q${index}" value="${option.score}" required>
+      ${option.label}
+    </label>
+  `).join('')}
+</div>
+    </div>
+  `;
+  questionContainer.appendChild(questionDiv);
+});
+
+// Optional: show the email and newsletter status on results page
+// (to be inserted just before the event listener below)
+
+document.getElementById('survey-form').addEventListener('submit', (e) => {
+  e.preventDefault();
+
+  grecaptcha.ready(function () {
+    grecaptcha.execute('6LcTgyorAAAAAFb-3dSlQbClojxWV8gV9fbcUZt6', { action: 'submit' }).then(function (token) {
+      handleSubmit(token);
+    });
+  });
+});
+
+function handleSubmit(recaptchaToken) {
+  const userAnswers = [];
+  const domainScores = {};
+  const domainMax = {};
+  let totalScore = 0;
+  let missingAnswers = false;
+
+
+
+
+  // Initialize domain scores
+  questions.forEach(q => {
+    if (!domainScores[q.domain]) {
+      domainScores[q.domain] = 0;
+      domainMax[q.domain] = 0;
+    }
+    domainMax[q.domain] += 7;
+  });
+
+  shuffledQuestions.forEach((q, index) => {
+    const selected = document.querySelector(`input[name="q${index}"]:checked`);
+    if (selected) {
+      let answer = parseInt(selected.value);
+      // Handle inversion
+      if (q.invert) {
+        answer = 8 - answer;
+      }
+      userAnswers.push({ question: q.text, domain: q.domain, answer: answer });
+      domainScores[q.domain] += answer;
+      totalScore += answer;
+    } else {
+      missingAnswers = true;
+    }
+  });
+
+  if (missingAnswers) {
+    alert('Please answer all questions before submitting.');
+    return;
+  }
+  // Check if Attention Check was answered correctly
+  const attentionCheckAnswer = userAnswers.find(ans => ans.domain === "Attention Check");
+  if (!attentionCheckAnswer || attentionCheckAnswer.answer !== 4) {
+    // User failed the attention check
+    const container = document.getElementById('intro');
+    const form = document.getElementById('survey-form');
+    form.style.display = 'none';
+    container.innerHTML = `
+      <div style="max-width: 800px; margin: 2em auto; padding: 2em; background-color: white; border-radius: 10px; box-shadow: 0px 4px 12px rgba(42, 105, 114, 0.2); text-align: center; font-family: 'Open Sans', sans-serif; color: #2A6972;">
+        <h2 style="font-family: 'Alice', serif; color: #2A6972;">Let’s Give It Another Go</h2>
+        <p style="font-size: 1.1em; line-height: 1.6em;">
+          It looks like one of the questions—our attention check—wasn’t answered the way we expected. That’s okay! These things happen, especially when we’re busy, distracted, or moving quickly.
+        </p>
+        <p style="font-size: 1.1em; line-height: 1.6em;">
+          The Pinnacle Wellness Assessment works best when responses reflect your thoughtful focus. Consider finding a quiet spot, giving yourself 10–15 minutes of uninterrupted time, and tuning in to how you truly feel right now.
+        </p>
+        <button onclick="window.location.reload()" style="margin-top: 1.5em; background-color: #2A6972; color: white; font-family: 'Open Sans', sans-serif; font-size: 1.1em; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer;">
+          🔄 Restart the Assessment
+        </button>
+      </div>
+    `;
+    return;
+  }
+
+  // Collect email value
+  const userEmail = document.getElementById('userEmail').value.trim();
+const subscribeNewsletter = document.getElementById('subscribeNewsletter').checked;
+  if (testingMode) {
+    console.log('Testing mode active: Skipping Firestore save.');
+  } else {
+    console.log('Normal mode active: Would save to Firestore here.');
+    // Log email before saving
+    console.log("Saving email:", userEmail);
+    // Save response to Firestore
+    db.collection("surveyResponses").add({
+  timestamp: new Date(),
+  totalScore: totalScore,
+  domainScores: domainScores,
+  responses: userAnswers,
+  recaptchaToken: recaptchaToken,
+  email: userEmail || null,
+  subscribeNewsletter: subscribeNewsletter
+})
+    .then(() => {
+      console.log("Response saved to Firestore");
+    })
+    .catch((error) => {
+      console.error("Error saving response:", error);
+    });
+  }
+
+  // Build Results Page
+  window.scrollTo({ top: 0, behavior: 'instant' });
+  const container = document.getElementById('intro');
+  const form = document.getElementById('survey-form');
+
+  // Add overall descriptor for score
+  let overallDescriptor = '';
+  if (totalScore >= 252) {
+    overallDescriptor = 'Thriving';
+  } else if (totalScore >= 168) {
+    overallDescriptor = 'Balanced';
+  } else if (totalScore >= 84) {
+    overallDescriptor = 'Needs Attention';
+  } else {
+    overallDescriptor = 'Critical';
+  }
+
+  container.innerHTML = `
+  <h2 style="font-family: 'Alice', serif; text-align: center;">Thank You for Completing the Assessment!</h2>
+  <div style="text-align: center;">
+    <p style="font-family: 'Alice', serif; font-size: 1.1em;">
+      This score provides a snapshot of your current state overall, and across 14 dimensions of wellness. While informative on its own, the real power lies in how you use it. Exploring these areas with a coach or trained professional can reveal patterns, unlock insight, and lead to actionable strategies for lasting growth.
+    </p>
+
+    <div style="margin: 2em auto; max-width: 400px; border-top: 1px solid #2A697280;"></div>
+
+    <p style="font-family: 'Alice', serif; font-size: 1.4em; font-weight: bold;">
+      Overall Pinnacle Wellness Score: ${totalScore} — <em>${overallDescriptor}</em>
+    </p>
+  </div>
+  <div id="domain-scores" style="font-family: 'Alice', serif; font-size: 1em; margin-top: 1.5em;"></div>
+`;
+  form.style.display = 'none';
+ 
+
+  // Render Domain Scores
+  const domainContainer = document.getElementById('domain-scores');
+
+  // Insert section header above domain scores
+  const domainHeading = document.createElement('h3');
+  domainHeading.textContent = "Your Domain Score Breakdown";
+  domainHeading.style.fontFamily = "'Open Sans', sans-serif";
+  domainHeading.style.textAlign = 'center';
+  domainHeading.style.color = '#2A6972';
+  domainHeading.style.marginTop = '2em';
+  domainHeading.style.marginBottom = '0.5em';
+  domainContainer.appendChild(domainHeading);
+
+  // Render all domain scores in a structured, color-coded two-column flex layout wrapped in a styled div
+  const domainTable = document.createElement('div');
+  domainTable.style.maxWidth = '600px';
+  domainTable.style.margin = '1em auto';
+  domainTable.style.display = 'flex';
+  domainTable.style.flexDirection = 'column';
+  domainTable.style.gap = '0.6em';
+
+  const domainDescriptions = {
+    "ʻĀina Momona": "Connection to land and environmental stewardship.",
+    "Waiwai": "Financial health and decision-making.",
+    "Financial Wellness": "Financial health and decision-making.",
+    "Social Wellness": "Meaningful relationships and community connection.",
+    "Environmental Wellness": "Sustainable surroundings that support well-being.",
+    "Spiritual Wellness": "Sense of meaning, belief, or faith practices.",
+    "Occupational Wellness": "Purpose and fulfillment in work or daily roles.",
+    "Pilina": "Close-knit connections and trust in relationships.",
+    "Emotional Wellness": "Balance, resilience, and emotional awareness.",
+    "Ke Akua Mana": "Spiritual and ancestral power, identity, and connection.",
+    "Intellectual Wellness": "Lifelong learning and cognitive engagement.",
+    "ʻŌiwi": "Cultural identity and personal growth.",
+    "Ea": "Empowerment, agency, and life direction.",
+    "Physical Wellness": "Bodily health, activity, and nourishment."
+  };
+
+  Object.keys(domainScores).forEach(domain => {
+    if (domain === "Attention Check") return;
+
+    const score = domainScores[domain];
+    let interpretation = '';
+    let badgeClass = '';
+
+    if (score >= 18) {
+      interpretation = 'Thriving';
+      badgeClass = 'badge-blue';
+    } else if (score >= 12) {
+      interpretation = 'Balanced';
+      badgeClass = 'badge-green';
+    } else if (score >= 6) {
+      interpretation = 'Needs Attention';
+      badgeClass = 'badge-yellow';
+    } else {
+      interpretation = 'Critical';
+      badgeClass = 'badge-red';
+    }
+
+    const row = document.createElement('div');
+    row.style.display = 'flex';
+    row.style.justifyContent = 'space-between';
+    row.style.alignItems = 'center';
+    row.style.borderBottom = '1px solid #2A697220';
+    row.style.padding = '0.4em 0';
+
+    const label = document.createElement('span');
+    label.innerHTML = `
+      <span class="tooltip">${domain}
+        <span class="tooltiptext">${domainDescriptions[domain] || ""}</span>
+      </span>
+    `;
+    label.style.fontFamily = "'Open Sans', sans-serif";
+    label.style.color = '#2A6972';
+
+    const scoreSpan = document.createElement('span');
+    scoreSpan.className = `score-badge ${badgeClass}`;
+    scoreSpan.textContent = `${score} — ${interpretation}`;
+
+    row.appendChild(label);
+    row.appendChild(scoreSpan);
+    domainTable.appendChild(row);
+  });
+
+  // Wrap the table in a styled div for subtle background, padding, rounded corners
+  const domainTableWrapper = document.createElement('div');
+  domainTableWrapper.setAttribute('style', 'background-color: #f9f9f9; border-radius: 10px; padding: 1.5em;');
+  domainTableWrapper.appendChild(domainTable);
+  domainContainer.appendChild(domainTableWrapper);
+
+  // Insert contact card (email/newsletter status) immediately after domain key
+  const contactCard = document.createElement('div');
+  contactCard.setAttribute('style', "max-width: 800px; margin: 2em auto; padding: 2em; background-color: white; border-radius: 10px; box-shadow: 0px 4px 12px rgba(42, 105, 114, 0.2); font-family: 'Open Sans', sans-serif; color: #2A6972; text-align: center;");
+
+  contactCard.innerHTML = `
+    ${userEmail ? `<p style="font-size: 1em;">A copy of your results will be sent to: <strong>${userEmail}</strong></p>` : ''}
+    <p style="font-size: 1em;">${subscribeNewsletter ? `✅ You're subscribed to Adam’s Wellness Newsletter.` : `❌ You did not opt-in to recieve email results.`}</p>
+  `;
+  container.appendChild(contactCard);
+
+  // Insert "Interpreting Your Results" header above reflection card
+  const reflectionHeader = document.createElement('h3');
+  reflectionHeader.textContent = "Interpreting Your Results";
+  reflectionHeader.style.fontFamily = "'Open Sans', sans-serif";
+  reflectionHeader.style.textAlign = 'center';
+  reflectionHeader.style.color = '#2A6972';
+  reflectionHeader.style.marginTop = '2em';
+  container.appendChild(reflectionHeader);
+
+  // Close the scores block and start a new white card
+  const reflectionCard = document.createElement('div');
+  reflectionCard.setAttribute('style', "max-width: 800px; margin: 1.5em auto; padding: 2em; background-color: white; border-radius: 10px; box-shadow: 0px 4px 12px rgba(42, 105, 114, 0.2); font-family: 'Alice', serif; color: #2A6972;");
+
+  reflectionCard.innerHTML = `
+    <h3>Thank you for completing the Pinnacle Wellness Assessment!</h3>
+    <p>This assessment provides a current snapshot of your wellness across 14 interconnected domains. It is intended as a reflection tool, not a diagnostic measure. Your results can help you identify areas of strength and opportunities for growth.</p>
+    <p>While your scores highlight your current impressions, where you choose to focus is ultimately your decision. You might target an area that's easier to grow first, or a more challenging area that could create broader change. Trust your instincts as you review your results.</p>
+    <p>You may refer to the <em>Aloha Wellness Guide™</em> for deeper insights, ideas, and many actionable steps requiring minimal resources. The guide offers practical pathways to strengthen each domain and foster holistic well-being.</p>
+    <p>We recommend reassessing your wellness after implementing new actions. Because wellness naturally fluctuates, the Pinnacle Wellness Assessment can be a valuable ongoing resource to monitor progress and discover your next steps.</p>
+  `;
+
+  container.appendChild(reflectionCard);
+
+  // Insert "Next Steps for Your Wellness Journey" header above CTA card
+  const ctaHeader = document.createElement('h3');
+  ctaHeader.textContent = "Next Steps for Your Wellness Journey";
+  ctaHeader.style.fontFamily = "'Open Sans', sans-serif";
+  ctaHeader.style.textAlign = 'center';
+  ctaHeader.style.color = '#2A6972';
+  ctaHeader.style.marginTop = '2.5em';
+  container.appendChild(ctaHeader);
+
+  const ctaCard = document.createElement('div');
+  ctaCard.setAttribute('style', "max-width: 800px; margin: 1.5em auto 2em auto; padding: 2em; background-color: #ffffff; border-radius: 10px; box-shadow: 0px 4px 12px rgba(42, 105, 114, 0.2); font-family: 'Open Sans', sans-serif; color: #2A6972; text-align: center;");
+
+  ctaCard.innerHTML = `
+    <h3 style="font-size: 1.4em; margin-bottom: 0.6em;">Want help turning your insights into action?</h3>
+    <p style="font-size: 1.1em; line-height: 1.6em; margin-bottom: 1.2em;">
+      Schedule a free 25-minute strategy session with <strong>Adam Grimm</strong>, the author of the Aloha Wellness Guide and founder of Pegasus Realm. Together, we'll explore your results, clarify your direction, and begin building a personalized wellness strategy.
+    </p>
+    <a href="https://tidycal.com/adamgrimm/consultation20240315005818" target="_blank" style="display: inline-block; background-color: #2A6972; color: #fff; padding: 12px 24px; border-radius: 8px; font-size: 1.1em; font-weight: bold; text-decoration: none; margin-bottom: 1em;">
+      📅 Book My Free Session
+    </a>
+    <p style="margin-top: 1.5em; font-size: 0.95em; color: #2A6972;">
+      Prefer to learn more first? <a href="https://adamgrimmcoach.com" target="_blank" style="color: #2A6972; text-decoration: underline;">Explore Adam’s Coaching Approach</a>
+    </p>
+  `;
+
+  container.appendChild(ctaCard);
+
+  // Add Sponsor Footer
+  const sponsorFooter = document.createElement('div');
+  sponsorFooter.innerHTML = `
+    <div id="sponsor-footer" style="font-family: 'Alice', serif; font-size: 1em; text-align: center; color: #2A6972; margin-top: 3em;">
+      <p><strong>Mahalo for being part of the journey toward greater well-being!</strong></p>
+    </div>
+  `;
+  container.appendChild(sponsorFooter);
+  
+}
+</script>
+
+
+
+
+<footer>
+  Brought to you by <strong>Pegasus Realm</strong> a wellness consulting and research organization.  
+  For professional use inquiries, visit <a href="https://www.pegasusrealm.com" target="_blank" style="color: #2A6972; text-decoration: underline;">www.pegasusrealm.com</a>.
+</footer>
+</body>
+</html>
