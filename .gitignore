@@ -67,3 +67,9 @@ node_modules/
 
 # dataconnect generated files
 .dataconnect
+
+# API Keys and sensitive files
+public/export.html
+*.env
+config.js
+secrets.js

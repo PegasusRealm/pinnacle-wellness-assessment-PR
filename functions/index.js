@@ -126,6 +126,15 @@ exports.sendResultsEmail = onDocumentCreated({
     if (data.email) {
       emailsToSend.push({ email: data.email, type: 'original' });
     }
+    
+    // Check if user wants to share results with Adam
+    if (data.shareWithAdam && data.email) {
+      emailsToSend.push({ 
+        email: 'adam@pegasusrealm.com', 
+        type: 'adamCopy',
+        userEmail: data.email 
+      });
+    }
   }
 
   // Skip if no emails
@@ -157,7 +166,7 @@ exports.sendResultsEmail = onDocumentCreated({
   const domainScoresHtml = generateDomainScoresHtml();
 
   // Send emails
-  const emailPromises = emailsToSend.map(({ email, type }) => {
+  const emailPromises = emailsToSend.map(({ email, type, userEmail }) => {
     let subject, htmlContent;
 
     if (type === 'original') {
@@ -195,10 +204,10 @@ exports.sendResultsEmail = onDocumentCreated({
 
       <div style="background: rgba(137, 201, 212, 0.1); border-radius: 12px; padding: 25px; margin: 25px 0; text-align: center;">
         <h3 style="color: #2A6972; margin-bottom: 15px; font-family: 'Open Sans', sans-serif;">Want Help Turning Your Insights Into Action?</h3>
-        <p style="margin: 0 0 20px 0; line-height: 1.6;">Schedule a free 25-minute strategy session with <strong>Adam Grimm</strong>, the author of the Aloha Wellness Guide and founder of Pegasus Realm. Together, we'll explore your results, clarify your direction, and begin building a personalized wellness strategy.</p>
-        <a href="https://tidycal.com/adamgrimm/consultation20240315005818" style="display: inline-block; background: linear-gradient(135deg, #2A6972 0%, #89C9D4 100%); color: white; font-family: 'Open Sans', sans-serif; font-size: 1.1em; font-weight: 600; padding: 12px 24px; border-radius: 8px; text-decoration: none; margin-bottom: 15px;">📅 Book My Free Session</a>
+        <p style="margin: 0 0 20px 0; line-height: 1.6;">Schedule a free 50-minute strategy session with <strong>Adam Grimm</strong>, the author of the Aloha Wellness Guide and founder of Pegasus Realm. Together, we'll explore your results, clarify your direction, and begin building a personalized wellness strategy.</p>
+        <a href="https://tidycal.com/adamgrimm/freesession" style="display: inline-block; background: linear-gradient(135deg, #2A6972 0%, #89C9D4 100%); color: white; font-family: 'Open Sans', sans-serif; font-size: 1.1em; font-weight: 600; padding: 12px 24px; border-radius: 8px; text-decoration: none; margin-bottom: 15px;">📅 Book My Free Session</a>
         <p style="margin: 15px 0 0 0; font-size: 0.9em; line-height: 1.5;">
-          Prefer to learn more first? Visit <a href="https://pegasusrealm.com" style="color: #2A6972; font-weight: 600; text-decoration: underline;">Pegasus Realm</a> for additional wellness resources and tools.
+          Prefer to learn more first? <a href="https://adamgrimmcoach.com" style="color: #2A6972; font-weight: 600; text-decoration: underline;">Explore Adam's Coaching Approach</a>
         </p>
       </div>
 
@@ -256,7 +265,7 @@ exports.sendResultsEmail = onDocumentCreated({
   </div>
 </body>
 </html>`;
-    } else {
+    } else if (type === 'practitioner') {
       // Practitioner assessment - practitioner email
       subject = "Client Wellness Assessment Results";
       htmlContent = `
@@ -301,6 +310,58 @@ exports.sendResultsEmail = onDocumentCreated({
 
       <div style="text-align: center; padding: 20px; border-top: 1px solid rgba(42, 105, 114, 0.1); margin-top: 30px;">
         <p style="margin: 0; font-size: 0.9rem; color: #666;"><strong>The Aloha Wellness Guide is brought to you free by Pegasus Realm and Present Mind Institute of Hawaii.</strong></p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>`;
+    } else if (type === 'adamCopy') {
+      // Copy for Adam when user opts to share results
+      subject = "User Shared Assessment Results - Review Request";
+      htmlContent = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <link href="https://fonts.googleapis.com/css2?family=Alice&family=Open+Sans:300,400,600,700&display=swap" rel="stylesheet" />
+</head>
+<body style="background: linear-gradient(135deg, #89C9D4 0%, #b8dde1 100%); font-family: 'Alice', serif; color: #2A6972; padding: 1.5em; margin: 0;">
+  <div style="max-width: 600px; margin: auto; background: white; border-radius: 15px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); overflow: hidden;">
+    <div style="background: linear-gradient(135deg, #2A6972 0%, #89C9D4 100%); color: white; padding: 30px; text-align: center;">
+      <h1 style="margin: 0; font-size: 1.8rem; font-family: 'Open Sans', sans-serif; font-weight: 700; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);">🤝 Shared Assessment Results</h1>
+      <p style="margin: 10px 0 0 0; font-size: 1rem; opacity: 0.9;">User Requested Review</p>
+    </div>
+    
+    <div style="padding: 30px;">
+      <p style="font-size: 1.1em; line-height: 1.6;">A user has completed the Pinnacle Wellness Assessment and requested to share their results with you for review:</p>
+      
+      <div style="background: #e8f4f8; border-left: 4px solid #2A6972; padding: 15px; margin: 20px 0; border-radius: 0 8px 8px 0;">
+        <p style="margin: 0; font-family: 'Open Sans', sans-serif;"><strong>Assessment Date:</strong> ${new Date(data.timestamp?.toDate()).toLocaleDateString()}</p>
+        <p style="margin: 5px 0 0 0; font-family: 'Open Sans', sans-serif;"><strong>User Email:</strong> ${userEmail || data.email}</p>
+        <p style="margin: 5px 0 0 0; font-family: 'Open Sans', sans-serif;"><strong>Newsletter Subscription:</strong> ${data.subscribeNewsletter ? 'Yes' : 'No'}</p>
+      </div>
+      
+      <div style="background: linear-gradient(135deg, #2A6972 0%, #89C9D4 100%); color: white; padding: 25px; border-radius: 12px; text-align: center; margin: 25px 0; box-shadow: 0 4px 15px rgba(42, 105, 114, 0.3);">
+        <h2 style="margin: 0 0 10px 0; color: white; font-family: 'Open Sans', sans-serif;">Overall Wellness Score</h2>
+        <div style="font-size: 2.2rem; font-weight: 700; margin: 10px 0;">${data.totalScore}</div>
+        <div style="font-size: 1.2rem; font-weight: 600;">${getInterpretation(data.totalScore)}</div>
+      </div>
+
+      <div style="background: #f8f9fa; border-radius: 12px; padding: 25px; margin: 25px 0;">
+        <h3 style="margin: 0 0 15px 0; color: #2A6972; font-family: 'Open Sans', sans-serif;">Domain Breakdown</h3>
+        <ul style="padding-left: 0; list-style: none; margin: 0;">
+          ${domainScoresHtml}
+        </ul>
+      </div>
+
+      <div style="background: rgba(137, 201, 212, 0.1); border-radius: 12px; padding: 20px; margin: 25px 0;">
+        <h3 style="color: #2A6972; margin-bottom: 10px; font-family: 'Open Sans', sans-serif;">Next Steps</h3>
+        <p style="margin: 0 0 15px 0; line-height: 1.6;">This user has indicated they would like to review their results with you. Consider reaching out to schedule a consultation or follow-up conversation.</p>
+        <p style="margin: 0; line-height: 1.6; font-size: 0.95em; font-style: italic;">This notification was sent because the user checked the "Please send a copy of my results to Adam so we can review together" option during their assessment.</p>
+      </div>
+
+      <div style="text-align: center; padding: 20px; border-top: 1px solid rgba(42, 105, 114, 0.1); margin-top: 30px;">
+        <p style="margin: 0; font-size: 0.9rem; color: #666;"><strong>Pinnacle Wellness Assessment - Pegasus Realm</strong></p>
       </div>
     </div>
   </div>

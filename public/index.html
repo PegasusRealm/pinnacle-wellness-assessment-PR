@@ -153,6 +153,43 @@
       background-color: #337AB720;
       color: #337AB7;
     }
+
+    /* Custom checkbox styling */
+    input[type="checkbox"] {
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      width: 18px;
+      height: 18px;
+      border: 2px solid #2A6972;
+      border-radius: 3px;
+      background-color: white;
+      margin-right: 0.5em;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    input[type="checkbox"]:checked {
+      background-color: #2A6972;
+      border-color: #2A6972;
+    }
+
+    input[type="checkbox"]:checked::before {
+      content: "✓";
+      position: absolute;
+      color: white;
+      font-size: 14px;
+      font-weight: bold;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    input[type="checkbox"]:hover {
+      border-color: #1e5258;
+      box-shadow: 0 0 5px rgba(42, 105, 114, 0.3);
+    }
   </style>
 
   <!-- Firebase App (core) -->
@@ -207,8 +244,14 @@
       <label for="userEmail" style="font-family: 'Open Sans', sans-serif; font-size: 0.95em; color: #2A6972;">Your Email (optional):</label><br>
       <input type="email" id="userEmail" name="userEmail" style="width: 100%; padding: 10px; font-size: 1em; margin-top: 0.5em; border: 1px solid #ccc; border-radius: 5px;"><br><br>
    <label style="font-size: 0.9em; color: #2A6972;">
-  <input type="checkbox" id="subscribeNewsletter" name="subscribeNewsletter" style="margin-right: 0.5em;">
-  Yes, I’d like to receive wellness updates and tools from Adam & Pegasus Realm.
+<input type="checkbox" id="subscribeNewsletter" name="subscribeNewsletter" style="margin-right: 0.5em;" checked>
+  Yes, I’d like to receive Wellness Team Culture, Adam's wellness and leadership newsletter fromPegasus Realm.
+</label>
+
+<br>
+<label style="font-size: 0.9em; color: #2A6972;">
+  <input type="checkbox" id="shareWithAdam" name="shareWithAdam" style="margin-right: 0.5em;" checked>
+  Please send a copy of my results to Adam so we can review together.
 </label>
 <p style="font-size: 0.8em; color: #2A6972; margin-top: 0.5em;">
   We respect your privacy. <a href="https://pegasusrealm.com/privacy-policy/" target="_blank" style="color: #2A6972; text-decoration: underline;">Privacy Policy</a>
@@ -224,7 +267,7 @@ console.log('Testing Mode:', testingMode); // You can remove this line later if 
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-    apiKey: "AIzaSyA3_c5ZI9fPnN6Jjlw6tneKjs5Hjq-epMw",
+    apiKey: "AIzaSyB37WBulbH_fo1IMx1q9-iOdX6_8JjOxIQ",
     authDomain: "pinnacle-wellness-assessment.firebaseapp.com",
     projectId: "pinnacle-wellness-assessment",
     storageBucket: "pinnacle-wellness-assessment.appspot.com",
@@ -408,6 +451,7 @@ function handleSubmit(recaptchaToken) {
   // Collect email value
   const userEmail = document.getElementById('userEmail').value.trim();
 const subscribeNewsletter = document.getElementById('subscribeNewsletter').checked;
+const shareWithAdam = document.getElementById('shareWithAdam').checked;
   if (testingMode) {
     console.log('Testing mode active: Skipping Firestore save.');
   } else {
@@ -422,7 +466,8 @@ const subscribeNewsletter = document.getElementById('subscribeNewsletter').check
   responses: userAnswers,
   recaptchaToken: recaptchaToken,
   email: userEmail || null,
-  subscribeNewsletter: subscribeNewsletter
+  subscribeNewsletter: subscribeNewsletter,
+  shareWithAdam: shareWithAdam
 })
     .then(() => {
       console.log("Response saved to Firestore");
@@ -605,9 +650,9 @@ const subscribeNewsletter = document.getElementById('subscribeNewsletter').check
   ctaCard.innerHTML = `
     <h3 style="font-size: 1.4em; margin-bottom: 0.6em;">Want help turning your insights into action?</h3>
     <p style="font-size: 1.1em; line-height: 1.6em; margin-bottom: 1.2em;">
-      Schedule a free 25-minute strategy session with <strong>Adam Grimm</strong>, the author of the Aloha Wellness Guide and founder of Pegasus Realm. Together, we'll explore your results, clarify your direction, and begin building a personalized wellness strategy.
+      Schedule a free 50-minute strategy session with <strong>Adam Grimm</strong>, the author of the Aloha Wellness Guide and founder of Pegasus Realm. Together, we'll explore your results, clarify your direction, and begin building a personalized wellness strategy.
     </p>
-    <a href="https://tidycal.com/adamgrimm/consultation20240315005818" target="_blank" style="display: inline-block; background-color: #2A6972; color: #fff; padding: 12px 24px; border-radius: 8px; font-size: 1.1em; font-weight: bold; text-decoration: none; margin-bottom: 1em;">
+    <a href="https://tidycal.com/adamgrimm/freesession" target="_blank" style="display: inline-block; background-color: #2A6972; color: #fff; padding: 12px 24px; border-radius: 8px; font-size: 1.1em; font-weight: bold; text-decoration: none; margin-bottom: 1em;">
       📅 Book My Free Session
     </a>
     <p style="margin-top: 1.5em; font-size: 0.95em; color: #2A6972;">
@@ -621,7 +666,7 @@ const subscribeNewsletter = document.getElementById('subscribeNewsletter').check
   const sponsorFooter = document.createElement('div');
   sponsorFooter.innerHTML = `
     <div id="sponsor-footer" style="font-family: 'Alice', serif; font-size: 1em; text-align: center; color: #2A6972; margin-top: 3em;">
-      <p><strong>Mahalo for being part of the journey toward greater well-being!</strong></p>
+      <p><strong>Mahalo for being part of the journey toward greater wellness!</strong></p>
     </div>
   `;
   container.appendChild(sponsorFooter);
